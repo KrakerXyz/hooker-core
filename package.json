@@ -1,16 +1,47 @@
 {
-    "name": "@hooker/core",
+    "name": "@hooker-monster/core",
+    "version": "1.0.0",
+    "description": "Core library for webhooks, providing client and data transfer objects.",
+    "keywords": [
+        "webhook",
+        "testing",
+        "realtime",
+        "client",
+        "hooker"
+    ],
+    "license": "MIT",
     "type": "module",
+    "sideEffects": false,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/KrakerXyz/hooker-core.git"
+    },
     "files": [
-        "src",
+        "dist",
         "README.md"
     ],
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "exports": {
-        "./dto/*": "./src/dto/*.ts",
-        "./api": "./src/client/ApiClient.ts",
-        "./mqtt": "./src/client/MqttClient.ts"
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./dto/*": {
+            "import": "./dist/dto/*.js",
+            "types": "./dist/dto/*.d.ts"
+        },
+        "./api": {
+            "import": "./dist/client/ApiClient.js",
+            "types": "./dist/client/ApiClient.d.ts"
+        },
+        "./mqtt": {
+            "import": "./dist/client/MqttClient.js",
+            "types": "./dist/client/MqttClient.d.ts"
+        }
     },
     "scripts": {
+        "build": "tsc --build",
         "demo": "tsx ./demo.ts"
     },
     "dependencies": {
@@ -19,6 +50,10 @@
         "paho-mqtt": "^1.1.0"
     },
     "devDependencies": {
-        "tsx": "^4.20.6"
+        "tsx": "^4.20.6",
+        "typescript": "^5.9.3"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

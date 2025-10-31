@@ -1,21 +1,31 @@
 {
     "compilerOptions": {
-        "module": "NodeNext",
         "outDir": "dist",
+        "rootDir": "src",
         "target": "ESNext",
         "strict": true,
         "sourceMap": true,
         "noImplicitReturns": true,
         "noEmitOnError": true,
         "skipLibCheck": true,
-        "resolveJsonModule": true, // Allows importing JSON files (used by schemas)
+        "resolveJsonModule": true,
+        "moduleResolution": "nodenext",
+        "module": "nodenext",
         "allowSyntheticDefaultImports": true,
-        "forceConsistentCasingInFileNames": true, //ensures that import casing matches physical file name 
+        "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
         "removeComments": true,
         "declaration": true,
+        "declarationMap": true,
+        "composite": true,
         "lib": [
-            "ESNext",
+            "ESNext"
         ]
     },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "src/**/*.spec.ts"
+    ]
 }
