@@ -1,0 +1,24 @@
+{
+    "name": "@hooker/core",
+    "type": "module",
+    "files": [
+        "src",
+        "README.md"
+    ],
+    "exports": {
+        "./dto/*": "./src/dto/*.ts",
+        "./api": "./src/client/ApiClient.ts",
+        "./mqtt": "./src/client/MqttClient.ts"
+    },
+    "scripts": {
+        "demo": "tsx ./demo.ts"
+    },
+    "dependencies": {
+        "@krakerxyz/utility": "^1.0.0",
+        "cross-fetch": "^4.0.0",
+        "paho-mqtt": "^1.1.0"
+    },
+    "devDependencies": {
+        "tsx": "^4.20.6"
+    }
+}
