@@ -1,0 +1,6 @@
+# Dev files
+tsconfig.json
+.vscode/
+
+# Test files
+**/*.spec.ts
