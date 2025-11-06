@@ -1,6 +1,8 @@
 # Hooker Core
 
-Developer-friendly clients for creating hooks and listening to webhook events in real time.
+## https://hooker.monster
+
+Developer-friendly clients for creating and listening to webhook events in real time.
 
 [![npm version](https://img.shields.io/npm/v/%40hooker-monster%2Fcore.svg)](https://www.npmjs.com/@hooker-monster/core)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)

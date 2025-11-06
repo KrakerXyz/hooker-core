@@ -1,6 +1,6 @@
 {
     "name": "@hooker-monster/core",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Core library for webhooks, providing client and data transfer objects.",
     "keywords": [
         "webhook",
