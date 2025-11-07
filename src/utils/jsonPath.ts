@@ -3,9 +3,6 @@ import { JSONPath } from 'jsonpath-plus';
 /**
  * Evaluates a JSONPath expression against a source string and returns the result as a string.
  * 
- * This function provides a consistent way to evaluate JSONPath expressions across the application,
- * ensuring that both server and client handle JSONPath evaluation identically.
- * 
  * @param src - The source string to parse as JSON and evaluate against
  * @param path - The JSONPath expression to evaluate
  * @returns The result of the JSONPath evaluation as a string, or undefined if parsing fails
