@@ -13,3 +13,4 @@ export * from './dto/HttpMethod.js';
 export * from './dto/MqttDeletedDto.js';
 export * from './dto/MqttJwtConfigDto.js';
 export * from './dto/UserDto.js';
+export * from './utils/jsonPath.js';
