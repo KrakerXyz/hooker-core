@@ -2,7 +2,7 @@ import fetch from 'cross-fetch';
 import { type EventsListDto } from '../dto/EventsListDto.js';
 import { type EventDto } from '../dto/EventDto.js';
 import { type HookDto, type HookCreateBody, type HookVisibilityUpdateBody, type HookNameUpdateBody } from '../dto/HookDto.js';
-import { type ColumnDto, type SaveColumnsBody } from '../dto/HookColumnsDto.js';
+import { type ColumnDto, type SaveColumnsBody } from '../dto/ColumnsDto.js';
 import { type AppConfigDto } from '../dto/AppConfigDto.js';
 import { type MqttJwtConfigDto } from '../dto/MqttJwtConfigDto.js';
 import { type Id } from '@krakerxyz/utility';
