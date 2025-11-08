@@ -5,10 +5,23 @@ import { type HookDto, type HookCreateBody, type HookVisibilityUpdateBody, type 
 import { type ColumnDto, type SaveColumnsBody } from '../dto/ColumnsDto.js';
 import { type AppConfigDto } from '../dto/AppConfigDto.js';
 import { type MqttJwtConfigDto } from '../dto/MqttJwtConfigDto.js';
+import { type ForwardRuleDto } from '../dto/ForwardRuleDto.js';
 import { type Id } from '@krakerxyz/utility';
+
+/**
+ * A function that provides authentication headers for API requests.
+ * Can return headers synchronously or asynchronously.
+ */
+export type AuthProvider = () => Record<string, string> | Promise<Record<string, string>>;
 
 export type ApiClientOptions = {
     baseUrl?: string,
+    /**
+     * The credentials mode for fetch requests.
+     * Use 'include' for cookie-based authentication.
+     * @default undefined
+     */
+    credentials?: RequestCredentials,
 };
 
 /**
@@ -16,30 +29,57 @@ export type ApiClientOptions = {
  */
 export class ApiClient {
     private baseUrl: string;
-    private token: string;
+    private authProvider: AuthProvider;
+    private credentials?: RequestCredentials;
 
     /**
      * Creates a new instance of the HookerClient.
-     * @param token The access token for authentication.
+     * @param auth The access token for authentication OR a custom auth provider function.
      * @param options Optional parameters.
      * @param options.baseUrl The base URL of the Hooker instance. Defaults to https://hooker.monster.
+     * @param options.credentials The credentials mode for fetch requests. Use 'include' for cookie-based auth.
      */
-    constructor(token: string, options?: ApiClientOptions) {
-        this.token = token;
-        const baseUrl = options?.baseUrl || 'https://hooker.monster';
+    constructor(auth: string | AuthProvider, options?: ApiClientOptions) {
+        // Support both legacy token string and new auth provider pattern
+        if (typeof auth === 'string') {
+            // Legacy: token-based auth (backward compatible)
+            this.authProvider = () => ({ Authorization: `Token ${auth}` });
+        } else {
+            // New: custom auth provider
+            this.authProvider = auth;
+        }
+
+        // Use nullish coalescing to allow empty string for relative URLs
+        const baseUrl = options?.baseUrl ?? 'https://hooker.monster';
         this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+        this.credentials = options?.credentials;
     }
 
     private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
         const url = `${this.baseUrl}${path}`;
         const headers = new Headers(options.headers);
-        headers.set('Authorization', `Token ${this.token}`);
+
+        // Apply auth headers from provider
+        const authHeaders = await this.authProvider();
+        Object.entries(authHeaders).forEach(([key, value]) => {
+            headers.set(key, value);
+        });
 
         if (options.body) {
             headers.set('Content-Type', 'application/json');
         }
 
-        const response = await fetch(url, { ...options, headers });
+        const fetchOptions: RequestInit = {
+            ...options,
+            headers
+        };
+
+        // Add credentials if specified (for cookie-based auth)
+        if (this.credentials) {
+            fetchOptions.credentials = this.credentials;
+        }
+
+        const response = await fetch(url, fetchOptions);
 
         if (!response.ok) {
             const errorBody = await response.text();
@@ -223,6 +263,42 @@ export class ApiClient {
      */
     async getMqttAuthHook(hookId: Id): Promise<MqttJwtConfigDto> {
         return this.request<MqttJwtConfigDto>(`/api/config/mqtt-jwt-hook/${hookId}`);
+    }
+    // #endregion
+
+    // #region ForwardRules
+    /**
+     * Retrieves the forward rules for a specific hook.
+     * @param hookId The ID of the hook.
+     * @returns A promise that resolves to a list of forward rules.
+     */
+    async getForwardRules(hookId: Id): Promise<ForwardRuleDto[]> {
+        return this.request<ForwardRuleDto[]>(`/api/hooks/${hookId}/forward-rules`);
+    }
+
+    /**
+     * Creates or updates a forward rule for a specific hook.
+     * @param hookId The ID of the hook.
+     * @param rule The forward rule to save.
+     * @returns A promise that resolves to the saved forward rule.
+     */
+    async saveForwardRule(hookId: Id, rule: ForwardRuleDto): Promise<ForwardRuleDto> {
+        return this.request<ForwardRuleDto>(`/api/hooks/${hookId}/forward-rules`, {
+            method: 'PUT',
+            body: JSON.stringify(rule)
+        });
+    }
+
+    /**
+     * Deletes a forward rule.
+     * WARNING: This is a physical delete that permanently removes the rule and its entire history.
+     * @param hookId The ID of the hook.
+     * @param ruleId The ID of the forward rule to delete.
+     */
+    async deleteForwardRule(hookId: Id, ruleId: Id): Promise<void> {
+        return this.request<void>(`/api/hooks/${hookId}/forward-rules/${ruleId}`, {
+            method: 'DELETE'
+        });
     }
     // #endregion
 }
