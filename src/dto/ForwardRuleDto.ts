@@ -30,6 +30,8 @@ export type ValueSelector = {
     path: string,
 } | {
     type: 'body-text',
+} | {
+    type: 'method',
 }
 
 export enum MatchType {
