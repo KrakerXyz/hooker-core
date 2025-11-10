@@ -1,6 +1,6 @@
 {
     "name": "@hooker-monster/core",
-    "version": "1.0.1",
+    "version": "1.1.1",
     "description": "Core library for webhooks, providing client and data transfer objects.",
     "keywords": [
         "webhook",
@@ -49,6 +49,7 @@
     "dependencies": {
         "@krakerxyz/utility": "^1.0.0",
         "cross-fetch": "^4.0.0",
+        "jsonpath-plus": "^10.2.0",
         "paho-mqtt": "^1.1.0"
     },
     "devDependencies": {
