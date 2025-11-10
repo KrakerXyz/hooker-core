@@ -6,6 +6,7 @@ export enum ColumnType {
     eventId = 'eventId',
     timestamp = 'timestamp',
     method = 'method',
+    forwardStatus = 'forwardStatus',
     hookId = 'hookId',
     path = 'path',
     ip = 'ip',

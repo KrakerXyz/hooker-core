@@ -6,7 +6,7 @@ import { type ColumnDto, type SaveColumnsBody } from '../dto/ColumnsDto.js';
 import { type AppConfigDto } from '../dto/AppConfigDto.js';
 import { type MqttJwtConfigDto } from '../dto/MqttJwtConfigDto.js';
 import { type ForwardRuleDto } from '../dto/ForwardRuleDto.js';
-import { type Forward } from '../dto/ForwardDto.js';
+import { type ForwardDto } from '../dto/ForwardDto.js';
 import { type ForwardAttemptDto } from '../dto/ForwardAttemptDto.js';
 import { type Id } from '@krakerxyz/utility';
 
@@ -310,8 +310,8 @@ export class ApiClient {
      * @param eventId The ID of the event.
      * @returns A promise that resolves to a list of forwards.
      */
-    async getEventForwards(eventId: Id): Promise<Forward[]> {
-        return this.request<Forward[]>(`/api/events/${eventId}/forwards`);
+    async getEventForwards(eventId: Id): Promise<ForwardDto[]> {
+        return this.request<ForwardDto[]>(`/api/events/${eventId}/forwards`);
     }
 
     /**

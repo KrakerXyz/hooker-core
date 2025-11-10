@@ -5,6 +5,7 @@ export * from './dto/AppConfigDto.js';
 export * from './dto/ColumnsDto.js';
 export * from './dto/ErrorDto.js';
 export * from './dto/EventDto.js';
+export * from './dto/EventListItemDto.js';
 export * from './dto/EventsListDto.js';
 export * from './dto/ForwardAttemptDto.js';
 export * from './dto/ForwardDto.js';

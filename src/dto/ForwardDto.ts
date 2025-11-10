@@ -14,12 +14,12 @@ export enum ForwardStatus {
     PendingReattempt = 'pendingReattempt',
 }
 
-/** 
+/**
  * Represents a forward of an event to an external endpoint based on a forwarding rule.
  * A forward tracks the delivery of a hook event to a target URL, and may have multiple
  * delivery attempts associated with it.
  */
-export interface Forward {
+export interface ForwardDto {
     /** Unique identifier for this forward */
     id: Id,
     /** ID of the hook that received the original event */
