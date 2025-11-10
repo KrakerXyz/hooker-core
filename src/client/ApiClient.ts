@@ -6,6 +6,8 @@ import { type ColumnDto, type SaveColumnsBody } from '../dto/ColumnsDto.js';
 import { type AppConfigDto } from '../dto/AppConfigDto.js';
 import { type MqttJwtConfigDto } from '../dto/MqttJwtConfigDto.js';
 import { type ForwardRuleDto } from '../dto/ForwardRuleDto.js';
+import { type Forward } from '../dto/ForwardDto.js';
+import { type ForwardAttemptDto } from '../dto/ForwardAttemptDto.js';
 import { type Id } from '@krakerxyz/utility';
 
 /**
@@ -299,6 +301,26 @@ export class ApiClient {
         return this.request<void>(`/api/hooks/${hookId}/forward-rules/${ruleId}`, {
             method: 'DELETE'
         });
+    }
+    // #endregion
+
+    // #region Forwards
+    /**
+     * Retrieves all forwards for a specific event.
+     * @param eventId The ID of the event.
+     * @returns A promise that resolves to a list of forwards.
+     */
+    async getEventForwards(eventId: Id): Promise<Forward[]> {
+        return this.request<Forward[]>(`/api/events/${eventId}/forwards`);
+    }
+
+    /**
+     * Retrieves all forward attempts for a specific forward.
+     * @param forwardId The ID of the forward.
+     * @returns A promise that resolves to a list of forward attempts.
+     */
+    async getForwardAttempts(forwardId: Id): Promise<ForwardAttemptDto[]> {
+        return this.request<ForwardAttemptDto[]>(`/api/forwards/${forwardId}/attempts`);
     }
     // #endregion
 }

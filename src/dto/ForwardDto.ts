@@ -4,10 +4,14 @@ import { type Id } from '@krakerxyz/utility';
 export enum ForwardStatus {
     /** Forward is queued and pending delivery */
     Pending = 'pending',
+    /** Forward is currently being delivered */
+    Running = 'running',
     /** Forward was successfully delivered */
     Completed = 'completed',
     /** Forward failed after all retry attempts */
     Failed = 'failed',
+    /** Forward is pending a retry attempt */
+    PendingReattempt = 'pendingReattempt',
 }
 
 /** 
@@ -28,8 +32,8 @@ export interface Forward {
     targetUrl: string,
     /** Timestamp when the forward was created/queued (should match the event timestamp) */
     timestamp: number,
-    /** Timestamp when the forward finished (either completed successfully or failed after all retries) */
-    completedAt?: number,
+    /** Timestamp when the status was last updated */
+    statusUpdatedAt?: number,
     /** Current status of the forward */
     status: ForwardStatus,
 }
