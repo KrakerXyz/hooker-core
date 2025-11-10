@@ -1,6 +1,6 @@
 {
     "name": "@hooker-monster/core",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "description": "Core library for webhooks, providing client and data transfer objects.",
     "keywords": [
         "webhook",
@@ -42,14 +42,19 @@
     },
     "scripts": {
         "build": "tsc --build",
-        "demo": "tsx ./demo.ts"
+        "demo": "tsx ./demo.ts",
+        "lint": "eslint \"src/**/*.ts\"",
+        "lint:fix": "eslint \"src/**/*.ts\" --fix"
     },
     "dependencies": {
         "@krakerxyz/utility": "^1.0.0",
         "cross-fetch": "^4.0.0",
+        "jsonpath-plus": "^10.2.0",
         "paho-mqtt": "^1.1.0"
     },
     "devDependencies": {
+        "@krakerxyz/eslint-config": "^2",
+        "eslint": "^9.14.0",
         "tsx": "^4.20.6",
         "typescript": "^5.9.3"
     },
