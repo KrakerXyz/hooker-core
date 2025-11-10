@@ -3,6 +3,8 @@ import type { Client, Message } from 'paho-mqtt';
 import { type EventDto } from '../dto/EventDto.js';
 import { type HookDto } from '../dto/HookDto.js';
 import { type MqttDeletedDto } from '../dto/MqttDeletedDto.js';
+import { type ForwardDto } from '../dto/ForwardDto.js';
+import { type ForwardAttemptDto } from '../dto/ForwardAttemptDto.js';
 import { type ApiClient } from './ApiClient.js';
 import { type Id } from '@krakerxyz/utility';
 
@@ -115,11 +117,19 @@ export class MqttClient {
     public subscribe(topic: `hooker/hooks/${string | Id}/created`, cb: (x: HookDto) => void): Disposable;
     public subscribe(topic: `hooker/hooks/${string | Id}/updated`, cb: (x: HookDto) => void): Disposable;
     public subscribe(topic: `hooker/hooks/${string | Id}/deleted`, cb: (x: MqttDeletedDto) => void): Disposable;
+    public subscribe(topic: `hooker/hooks/${string | Id}/forwards/queued`, cb: (x: ForwardDto) => void): Disposable;
+    public subscribe(topic: `hooker/hooks/${string | Id}/forwards/${string | Id}/status-changes/${string}`, cb: (x: ForwardDto) => void): Disposable;
+    public subscribe(topic: `hooker/hooks/${string | Id}/forwards/${string | Id}/status-changes/#`, cb: (x: ForwardDto) => void): Disposable;
+    public subscribe(topic: `hooker/hooks/${string | Id}/forwards/${string | Id}/attempts`, cb: (x: ForwardAttemptDto) => void): Disposable;
     public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/events`, cb: (x: EventDto) => void): Disposable;
     public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/events/${string | Id}/deleted`, cb: (x: MqttDeletedDto) => void): Disposable;
     public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/created`, cb: (x: HookDto) => void): Disposable;
     public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/updated`, cb: (x: HookDto) => void): Disposable;
     public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/deleted`, cb: (x: MqttDeletedDto) => void): Disposable;
+    public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/forwards/queued`, cb: (x: ForwardDto) => void): Disposable;
+    public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/forwards/${string | Id}/status-changes/${string}`, cb: (x: ForwardDto) => void): Disposable;
+    public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/forwards/${string | Id}/status-changes/#`, cb: (x: ForwardDto) => void): Disposable;
+    public subscribe(topic: `hooker/users/${string | Id}/hooks/${string | Id}/forwards/${string | Id}/attempts`, cb: (x: ForwardAttemptDto) => void): Disposable;
     public subscribe(topic: string, cb: (x: any) => void): Disposable {
         let existingCbs = this._subscriptions.get(topic);
         if (!existingCbs) {
