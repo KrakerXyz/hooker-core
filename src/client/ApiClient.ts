@@ -188,7 +188,7 @@ export class ApiClient {
         if (options?.beforeTs) params.set('beforeTs', String(options.beforeTs));
         if (options?.beforeId) params.set('beforeId', String(options.beforeId));
         const queryString = params.toString();
-        return this.request<EventsListDto>(`/api/events/${hookId}${queryString ? `?${queryString}` : ''}`);
+        return this.request<EventsListDto>(`/api/hooks/${hookId}/events${queryString ? `?${queryString}` : ''}`);
     }
 
     /**
