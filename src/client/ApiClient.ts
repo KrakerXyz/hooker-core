@@ -1,12 +1,12 @@
 import fetch from 'cross-fetch';
-import { type EventsListDto } from '../dto/EventsListDto.js';
+import { type EventsListDto, type EventListItemDto } from '../dto/EventsListDto.js';
 import { type EventDto } from '../dto/EventDto.js';
 import { type HookDto, type HookCreateBody, type HookVisibilityUpdateBody, type HookNameUpdateBody } from '../dto/HookDto.js';
 import { type ColumnDto, type SaveColumnsBody } from '../dto/ColumnsDto.js';
 import { type AppConfigDto } from '../dto/AppConfigDto.js';
 import { type MqttJwtConfigDto } from '../dto/MqttJwtConfigDto.js';
 import { type ForwardRuleDto } from '../dto/ForwardRuleDto.js';
-import { type Forward } from '../dto/ForwardDto.js';
+import { type ForwardDto } from '../dto/ForwardDto.js';
 import { type ForwardAttemptDto } from '../dto/ForwardAttemptDto.js';
 import { type Id } from '@krakerxyz/utility';
 
@@ -188,7 +188,7 @@ export class ApiClient {
         if (options?.beforeTs) params.set('beforeTs', String(options.beforeTs));
         if (options?.beforeId) params.set('beforeId', String(options.beforeId));
         const queryString = params.toString();
-        return this.request<EventsListDto>(`/api/events/${hookId}${queryString ? `?${queryString}` : ''}`);
+        return this.request<EventsListDto>(`/api/hooks/${hookId}/events${queryString ? `?${queryString}` : ''}`);
     }
 
     /**
@@ -212,6 +212,15 @@ export class ApiClient {
         return this.request<void>(`/api/events/${eventId}`, {
             method: 'DELETE'
         });
+    }
+
+    /**
+     * Gets a single event as EventListItemDto (includes forwardStatus).
+     * @param eventId The ID of the event.
+     * @returns A promise that resolves to the event with forward status.
+     */
+    async getEventListItem(eventId: Id): Promise<EventListItemDto> {
+        return this.request<EventListItemDto>(`/api/events/${eventId}/list-item`);
     }
     // #endregion
 
@@ -310,8 +319,8 @@ export class ApiClient {
      * @param eventId The ID of the event.
      * @returns A promise that resolves to a list of forwards.
      */
-    async getEventForwards(eventId: Id): Promise<Forward[]> {
-        return this.request<Forward[]>(`/api/events/${eventId}/forwards`);
+    async getEventForwards(eventId: Id): Promise<ForwardDto[]> {
+        return this.request<ForwardDto[]>(`/api/events/${eventId}/forwards`);
     }
 
     /**

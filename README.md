@@ -112,6 +112,9 @@ Hook‑scoped topics
 - `hooker/hooks/{hookId}/created` → HookDto when a hook is created
 - `hooker/hooks/{hookId}/updated` → HookDto when a hook is updated
 - `hooker/hooks/{hookId}/deleted` → MqttDeletedDto when a hook is deleted
+- `hooker/hooks/{hookId}/forwards/queued` → ForwardDto when a forward is queued
+- `hooker/hooks/{hookId}/forwards/{forwardId}/status-changes/{status}` → ForwardDto when forward status changes
+- `hooker/hooks/{hookId}/forwards/{forwardId}/attempts` → ForwardAttemptDto for each forward delivery attempt
 
 User‑scoped topics (requires user JWT; MqttClient uses this by default)
 - `hooker/users/{userId}/hooks/{hookId}/events`
@@ -119,11 +122,17 @@ User‑scoped topics (requires user JWT; MqttClient uses this by default)
 - `hooker/users/{userId}/hooks/{hookId}/created`
 - `hooker/users/{userId}/hooks/{hookId}/updated`
 - `hooker/users/{userId}/hooks/{hookId}/deleted`
+- `hooker/users/{userId}/hooks/{hookId}/forwards/queued`
+- `hooker/users/{userId}/hooks/{hookId}/forwards/{forwardId}/status-changes/{status}`
+- `hooker/users/{userId}/hooks/{hookId}/forwards/{forwardId}/attempts`
 
 Wildcard examples
 - `hooker/hooks/+/events` → events for all hooks
 - `hooker/hooks/+/events/+/deleted` → deletions for any event on any hook
-- `hooker/hooks/#` → everything under hooks (events and lifecycle)
+- `hooker/hooks/+/forwards/+/status-changes/#` → all forward status changes for all hooks
+- `hooker/hooks/+/forwards/+/status-changes/completed` → only completed forwards for all hooks
+- `hooker/hooks/{hookId}/forwards/+/attempts` → all forward attempts for a specific hook
+- `hooker/hooks/#` → everything under hooks (events, forwards, and lifecycle)
 - `hooker/users/+/hooks/+/events` → events for all hooks owned by any user id
 
 Notes
@@ -136,9 +145,17 @@ Types are exported for convenience
 - EventDto: `import type { EventDto } from '@hooker-monster/core'`
 - HookDto: `import type { HookDto } from '@hooker-monster/core'`
 - MqttDeletedDto: `import type { MqttDeletedDto } from '@hooker-monster/core'`
+- ForwardDto: `import type { ForwardDto } from '@hooker-monster/core'`
+- ForwardAttemptDto: `import type { ForwardAttemptDto } from '@hooker-monster/core'`
 
 EventDto (summary)
 - id, hookId, method, path, querystring, headers, body, timestamp, ip, contentType, bookmarked
+
+ForwardDto (summary)
+- id, hookId, forwardRuleId, eventId, targetUrl, timestamp, statusUpdatedAt, status
+
+ForwardAttemptDto (summary)
+- id, forwardId, timestamp, statusCode, contentType, responseBody, durationMs
 
 ### Examples
 

@@ -1,4 +1,5 @@
 import { type EventDto } from './EventDto.js';
+import { type EventListItemDto } from './EventListItemDto.js';
 
 export interface EventsListDtoCursor {
     beforeTs: number,
@@ -6,8 +7,8 @@ export interface EventsListDtoCursor {
 }
 
 export interface EventsListDto {
-    items: EventDto[],
+    items: EventListItemDto[],
     nextCursor: EventsListDtoCursor | null,
 }
 
-export type { EventDto };
+export type { EventDto, EventListItemDto };
