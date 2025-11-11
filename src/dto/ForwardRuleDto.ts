@@ -1,5 +1,8 @@
 import { type Id } from '@krakerxyz/utility';
 
+/** A string of one or more numbers separated by commas */
+export type CommaSeparatedNumbers = string;
+
 /** Rule for conditionally forwarding events to another endpoint */
 export interface ForwardRuleDto {
     /** Forwarding rule id */
@@ -16,6 +19,18 @@ export interface ForwardRuleDto {
     passFilters?: Filter[],
     /** Filters that must NOT match for the rule to apply */
     failFilters?: Filter[],
+    /**
+     * Number of times to retry a failed forward. 0 means no retries.
+     * @minimum 0
+     * @maximum 10
+     */
+    retryCount: number,
+    /**
+     * Comma-separated list of retry intervals in seconds.
+     * If there are more retries than intervals, the last interval is used for subsequent retries.
+     * @pattern ^\d+(,\d+)*$
+     */
+    retryInterval: CommaSeparatedNumbers,
 }
 
 export type ValueSelector = {
