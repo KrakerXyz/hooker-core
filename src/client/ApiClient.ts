@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch';
-import { type EventsListDto } from '../dto/EventsListDto.js';
+import { type EventsListDto, type EventListItemDto } from '../dto/EventsListDto.js';
 import { type EventDto } from '../dto/EventDto.js';
 import { type HookDto, type HookCreateBody, type HookVisibilityUpdateBody, type HookNameUpdateBody } from '../dto/HookDto.js';
 import { type ColumnDto, type SaveColumnsBody } from '../dto/ColumnsDto.js';
@@ -212,6 +212,15 @@ export class ApiClient {
         return this.request<void>(`/api/events/${eventId}`, {
             method: 'DELETE'
         });
+    }
+
+    /**
+     * Gets a single event as EventListItemDto (includes forwardStatus).
+     * @param eventId The ID of the event.
+     * @returns A promise that resolves to the event with forward status.
+     */
+    async getEventListItem(eventId: Id): Promise<EventListItemDto> {
+        return this.request<EventListItemDto>(`/api/events/${eventId}/list-item`);
     }
     // #endregion
 
