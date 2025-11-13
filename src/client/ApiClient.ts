@@ -1,13 +1,13 @@
 import fetch from 'cross-fetch';
-import { type EventsListDto, type EventListItemDto } from '../dto/EventsListDto.js';
-import { type EventDto } from '../dto/EventDto.js';
-import { type HookDto, type HookCreateBody, type HookVisibilityUpdateBody, type HookNameUpdateBody } from '../dto/HookDto.js';
-import { type ColumnDto, type SaveColumnsBody } from '../dto/ColumnsDto.js';
-import { type AppConfigDto } from '../dto/AppConfigDto.js';
-import { type MqttJwtConfigDto } from '../dto/MqttJwtConfigDto.js';
-import { type ForwardRuleDto } from '../dto/ForwardRuleDto.js';
-import { type ForwardDto } from '../dto/ForwardDto.js';
-import { type ForwardAttemptDto } from '../dto/ForwardAttemptDto.js';
+import { type EventsListDto, type EventListItemDto } from '../dto/EventsList.js';
+import { type EventDto } from '../dto/Event.js';
+import { type HookDto, type HookCreateBody, type HookVisibilityUpdateBody, type HookNameUpdateBody } from '../dto/Hook.js';
+import { type ColumnDto, type SaveColumnsBody } from '../dto/Columns.js';
+import { type AppConfigDto } from '../dto/AppConfig.js';
+import { type MqttJwtConfigDto } from '../dto/MqttJwtConfig.js';
+import { type ForwardRuleDto } from '../dto/ForwardRule.js';
+import { type ForwardDto } from '../dto/Forward.js';
+import { type ForwardAttemptDto } from '../dto/ForwardAttempt.js';
 import { type Id } from '@krakerxyz/utility';
 
 /**

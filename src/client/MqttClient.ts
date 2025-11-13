@@ -1,10 +1,10 @@
 import Paho from 'paho-mqtt';
 import type { Client, Message } from 'paho-mqtt';
-import { type EventDto } from '../dto/EventDto.js';
-import { type HookDto } from '../dto/HookDto.js';
-import { type MqttDeletedDto } from '../dto/MqttDeletedDto.js';
-import { type ForwardDto } from '../dto/ForwardDto.js';
-import { type ForwardAttemptDto } from '../dto/ForwardAttemptDto.js';
+import { type EventDto } from '../dto/Event.js';
+import { type HookDto } from '../dto/Hook.js';
+import { type MqttDeletedDto } from '../dto/MqttDeleted.js';
+import { type ForwardDto } from '../dto/Forward.js';
+import { type ForwardAttemptDto } from '../dto/ForwardAttempt.js';
 import { type ApiClient } from './ApiClient.js';
 import { type Id } from '@krakerxyz/utility';
 

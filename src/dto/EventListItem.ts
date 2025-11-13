@@ -1,5 +1,5 @@
-import type { EventDto } from './EventDto.js';
-import type { ForwardStatus } from './ForwardDto.js';
+import type { EventDto } from './Event.js';
+import type { ForwardStatus } from './Forward.js';
 
 /**
  * Event item returned in list views, enriched with forward status.
