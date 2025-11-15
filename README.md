@@ -42,7 +42,7 @@ const hook = await api.createHook({ id: crypto.randomUUID() });
 const mqtt = new MqttClient(api);
 await mqtt.connect();
 
-const sub = mqtt.subscribe(`hooker/hooks/${hook.id}/events`, (evt) => {
+const sub = mqtt.subscribe(`hooks/${hook.id}/events`, (evt) => {
   console.log('event:', evt.id, evt.method, evt.path);
 });
 
@@ -93,7 +93,7 @@ mqtt.disconnect();
 
 Subscribe/unsubscribe
 ```ts
-const disposable = mqtt.subscribe(`hooker/hooks/${hookId}/events`, (e) => console.log(e));
+const disposable = mqtt.subscribe(`hooks/${hookId}/events`, (e) => console.log(e));
 // later
 disposable[Symbol.dispose]();
 ```
@@ -106,37 +106,25 @@ Wildcards
 - `+` matches a single level
 - `#` matches multiple levels and must be the last token
 
-Hook‑scoped topics
-- `hooker/hooks/{hookId}/events` → EventDto for inbound webhooks
-- `hooker/hooks/{hookId}/events/{eventId}/deleted` → MqttDeletedDto when an event is deleted
-- `hooker/hooks/{hookId}/created` → HookDto when a hook is created
-- `hooker/hooks/{hookId}/updated` → HookDto when a hook is updated
-- `hooker/hooks/{hookId}/deleted` → MqttDeletedDto when a hook is deleted
-- `hooker/hooks/{hookId}/forwards/queued` → ForwardDto when a forward is queued
-- `hooker/hooks/{hookId}/forwards/{forwardId}/status-changes/{status}` → ForwardDto when forward status changes
-- `hooker/hooks/{hookId}/forwards/{forwardId}/attempts` → ForwardAttemptDto for each forward delivery attempt
-
-User‑scoped topics (requires user JWT; MqttClient uses this by default)
-- `hooker/users/{userId}/hooks/{hookId}/events`
-- `hooker/users/{userId}/hooks/{hookId}/events/{eventId}/deleted`
-- `hooker/users/{userId}/hooks/{hookId}/created`
-- `hooker/users/{userId}/hooks/{hookId}/updated`
-- `hooker/users/{userId}/hooks/{hookId}/deleted`
-- `hooker/users/{userId}/hooks/{hookId}/forwards/queued`
-- `hooker/users/{userId}/hooks/{hookId}/forwards/{forwardId}/status-changes/{status}`
-- `hooker/users/{userId}/hooks/{hookId}/forwards/{forwardId}/attempts`
+Topics
+- `hooks/{hookId}/events` → EventDto for inbound webhooks
+- `hooks/{hookId}/events/{eventId}/deleted` → MqttDeletedDto when an event is deleted
+- `hooks/{hookId}/created` → HookDto when a hook is created
+- `hooks/{hookId}/updated` → HookDto when a hook is updated
+- `hooks/{hookId}/deleted` → MqttDeletedDto when a hook is deleted
+- `hooks/{hookId}/forwards/queued` → ForwardDto when a forward is queued
+- `hooks/{hookId}/forwards/{forwardId}/status-changes/{status}` → ForwardDto when forward status changes
+- `hooks/{hookId}/forwards/{forwardId}/attempts` → ForwardAttemptDto for each forward delivery attempt
 
 Wildcard examples
-- `hooker/hooks/+/events` → events for all hooks
-- `hooker/hooks/+/events/+/deleted` → deletions for any event on any hook
-- `hooker/hooks/+/forwards/+/status-changes/#` → all forward status changes for all hooks
-- `hooker/hooks/+/forwards/+/status-changes/completed` → only completed forwards for all hooks
-- `hooker/hooks/{hookId}/forwards/+/attempts` → all forward attempts for a specific hook
-- `hooker/hooks/#` → everything under hooks (events, forwards, and lifecycle)
-- `hooker/users/+/hooks/+/events` → events for all hooks owned by any user id
+- `hooks/+/events` → events for all your hooks
+- `hooks/+/events/+/deleted` → deletions for any event on any hook
+- `hooks/+/forwards/+/status-changes/#` → all forward status changes for all hooks
+- `hooks/+/forwards/+/status-changes/completed` → only completed forwards for all hooks
+- `hooks/{hookId}/forwards/+/attempts` → all forward attempts for a specific hook
 
 Notes
-- MqttClient obtains a user‑scoped JWT via ApiClient.getMqttAuthUser(), enabling user topics above.
+- Topics are automatically scoped to your user account. The client handles authentication and prefixing internally.
 - Reconnect is enabled and subscriptions are re‑applied on reconnect.
 
 ### Payload shapes
@@ -169,7 +157,7 @@ const hook = await api.createHook({ id: crypto.randomUUID() });
 const mqtt = new MqttClient(api);
 await mqtt.connect();
 
-const sub = mqtt.subscribe(`hooker/hooks/${hook.id}/events`, (e) => console.log('received', e));
+const sub = mqtt.subscribe(`hooks/${hook.id}/events`, (e) => console.log('received', e));
 
 await fetch(hook.url, { method: 'POST', body: JSON.stringify({ ping: true }), headers: { 'Content-Type': 'application/json' } });
 

@@ -8,6 +8,7 @@ import { type MqttJwtConfigDto } from '../dto/MqttJwtConfig.js';
 import { type ForwardRuleDto } from '../dto/ForwardRule.js';
 import { type ForwardDto } from '../dto/Forward.js';
 import { type ForwardAttemptDto } from '../dto/ForwardAttempt.js';
+import { type UserDto } from '../dto/User.js';
 import { type Id } from '@krakerxyz/utility';
 
 /**
@@ -249,6 +250,14 @@ export class ApiClient {
     // #endregion
 
     // #region Config
+    /**
+     * Retrieves the current authenticated user.
+     * @returns A promise that resolves to the current user or null.
+     */
+    async me(): Promise<{ user: UserDto | null }> {
+        return this.request<{ user: UserDto | null }>('/api/me');
+    }
+
     /**
      * Retrieves the application configuration.
      * @returns A promise that resolves to the app configuration.

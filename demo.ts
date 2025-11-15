@@ -1,4 +1,3 @@
-
 import { ApiClient } from './src/client/ApiClient.js';
 import { MqttClient } from './src/client/MqttClient.js';
 
@@ -11,23 +10,36 @@ await mqttClient.connect();
 console.log('Connected to MQTT broker');
 
 const newHook = await apiClient.createHook({ id: crypto.randomUUID() });
-
 console.log(`Created Hook ${newHook.id}`);
 
 const { promise: mqttReceived, resolve: mqttResolve } = Promise.withResolvers<void>();
-mqttClient.subscribe(`hooker/hooks/${newHook.id}/events`, (event) => {
+await mqttClient.subscribe(`hooks/${newHook.id}/events`, (event) => {
     console.log(`Received event via MQTT: ${event.body}`);
     mqttResolve();
 });
 
-await fetch(newHook.url.replace('5173','3000'), {
+// Build fetch URL robustly: preserve host/subdomain, force server port to 3000
+const u = new URL(newHook.url);
+u.port = '3000';
+const fetchUrl = u.toString();
+
+const res = await fetch(fetchUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ test: 'Hello world from the demo' }),
 });
-console.log('Sent test webhook to', newHook.url);
+console.log(`Sent test webhook to ${fetchUrl} (status ${res.status})`);
 
-await mqttReceived;
+// Wait for MQTT or time out with a helpful message
+const timeoutMs = 10000;
+const timedOut = await Promise.race([
+    mqttReceived.then(() => false),
+    new Promise<boolean>(resolve => setTimeout(() => resolve(true), timeoutMs))
+]);
+
+if (timedOut) {
+    console.warn(`No MQTT event after ${timeoutMs}ms. Check host DNS for ${u.hostname} and server logs.`);
+}
 
 await apiClient.deleteHook(newHook.id);
 console.log(`Deleted Hook ${newHook.id}`);
