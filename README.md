@@ -24,12 +24,17 @@ Hooker Core provides two lightweight clients:
 
 ## Installation
 
+```bash
 npm install @hooker-monster/core
+```
 
 Notes
 - ESM only. Use import syntax in Node (Node 18+ recommended).
 - Works in Node and the browser. In Node, WebSocket transport is used by the MQTT client.
 
+## Quick start
+
+```ts
 import { ApiClient, MqttClient } from '@hooker-monster/core';
 
 const apiKey = 'YOUR_API_KEY';
