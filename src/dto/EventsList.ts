@@ -1,5 +1,5 @@
-import { type EventDto } from './EventDto.js';
-import { type EventListItemDto } from './EventListItemDto.js';
+import { type EventDto } from './Event.js';
+import { type EventListItemDto } from './EventListItem.js';
 
 export interface EventsListDtoCursor {
     beforeTs: number,
