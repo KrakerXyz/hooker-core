@@ -132,6 +132,15 @@ export class ApiClient {
     }
 
     /**
+     * Looks up a hook by its subdomain name on the current node.
+     * No authentication required; respects visibility.
+     */
+    async getHookByName(name: string): Promise<HookDto> {
+        const safe = encodeURIComponent(name);
+        return this.request<HookDto>(`/api/hooks/by-name/${safe}`);
+    }
+
+    /**
      * Updates the name of a hook.
      * @param id The ID of the hook.
      * @param body The name update data.

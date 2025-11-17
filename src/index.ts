@@ -10,6 +10,8 @@ export * from './dto/Forward.js';
 export * from './dto/ForwardAttempt.js';
 export * from './dto/ForwardRule.js';
 export * from './dto/Hook.js';
+export * from './dto/HookUrl.js';
+export * from './dto/HookUrlCreate.js';
 export * from './dto/HttpMethod.js';
 export * from './dto/MqttDeleted.js';
 export * from './dto/MqttJwtConfig.js';
