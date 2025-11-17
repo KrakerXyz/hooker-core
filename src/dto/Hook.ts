@@ -10,19 +10,19 @@ export enum HookVisibility {
 
 /** Parent record for grouping events. */
 export interface HookDto {
-    readonly id: Id,
-    readonly timestamp: number,
+    id: Id,
+    timestamp: number,
     // Owner user id, or null for anonymous ownership
-    readonly createdBy: Id | null,
+    createdBy: Id | null,
     /** Owner verify token for anonymous ownership */
-    readonly ownerVerify?: string | null,
+    ownerVerify?: string | null,
     visibility: HookVisibility,
     /** Optional human-friendly display name (settable by owner). */
     name?: string | null,
     /** Execution node where this hook is hosted (e.g., "kat"). */
-    readonly node: string,
+    node: string,
     /** Full public URL to send webhooks to for this hook (derived from PUBLIC_URL). */
-    readonly url: string,
+    url: string,
 }
 
 // Generate a random verification token (25 chars) for anonymous hook owners.
