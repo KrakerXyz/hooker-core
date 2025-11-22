@@ -58,7 +58,7 @@ export class ApiClient {
         this.credentials = options?.credentials;
     }
 
-    private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    private async request<T>(path: string, options: RequestInit = {}, responseType: 'json' | 'text' = 'json'): Promise<T> {
         const url = `${this.baseUrl}${path}`;
         const headers = new Headers(options.headers);
 
@@ -104,6 +104,10 @@ export class ApiClient {
 
         if (response.status === 204) {
             return null as T;
+        }
+
+        if (responseType === 'text') {
+            return response.text() as Promise<T>;
         }
 
         return response.json() as Promise<T>;
@@ -231,6 +235,25 @@ export class ApiClient {
      */
     async getEventListItem(eventId: Id): Promise<EventListItemDto> {
         return this.request<EventListItemDto>(`/api/events/${eventId}/list-item`);
+    }
+
+    /**
+     * Retrieves the raw body of an event.
+     * This is used when the body is stored in a file and not in the database.
+     * @param eventId The ID of the event.
+     * @returns A promise that resolves to the raw body text.
+     */
+    async getEventBody(eventId: Id): Promise<string> {
+        return this.request<string>(`/api/events/${eventId}/body`, {}, 'text');
+    }
+
+    /**
+     * Gets a single event.
+     * @param eventId The ID of the event.
+     * @returns A promise that resolves to the event.
+     */
+    async getEvent(eventId: Id): Promise<EventDto> {
+        return this.request<EventDto>(`/api/events/${eventId}`);
     }
     // #endregion
 

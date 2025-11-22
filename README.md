@@ -1,5 +1,7 @@
 # Hooker Core
 
+> **Note:** This library is currently in **ALPHA**. Expect breaking changes in minor versions until v1.0.0.
+
 ## https://hooker.monster
 
 Developer-friendly clients for creating and listening to webhook events in real time.
@@ -76,6 +78,8 @@ Common calls
 - getMyHooks(): Promise<HookDto[]>
 - deleteHook(id): Promise<void>
 - getEvents(hookId, { limit, beforeTs, beforeId }): Promise<EventsListDto>
+- getEvent(eventId): Promise<EventDto>
+- getEventBody(eventId): Promise<string>
 - bookmarkEvent(eventId, state): Promise<EventDto>
 - getConfig(): Promise<AppConfigDto>
 - getMqttAuthUser(): Promise<MqttJwtConfigDto>
@@ -142,13 +146,31 @@ Types are exported for convenience
 - ForwardAttemptDto: `import type { ForwardAttemptDto } from '@hooker-monster/core'`
 
 EventDto (summary)
-- id, hookId, method, path, querystring, headers, body, timestamp, ip, contentType, bookmarked
+- id, hookId, method, path, querystring, headers, body, bodyIncluded, timestamp, ip, contentType, bookmarked
 
 ForwardDto (summary)
 - id, hookId, forwardRuleId, eventId, targetUrl, timestamp, statusUpdatedAt, status
 
 ForwardAttemptDto (summary)
 - id, forwardId, timestamp, statusCode, contentType, responseBody, durationMs
+
+### Large Request Bodies
+
+For performance reasons, large request bodies (>5KB by default) are not included in event list results (`getEvents`). In these cases, the `body` field will be `null` and `bodyIncluded` will be `false`.
+
+To retrieve the full event data including the body, use `getEvent(eventId)`. Alternatively, you can retrieve just the body content using `getEventBody(eventId)`.
+
+```ts
+// In list results, body might be null
+const events = await api.getEvents(hookId);
+const event = events.items[0];
+
+if (!event.bodyIncluded) {
+  // Fetch full event to get the body
+  const fullEvent = await api.getEvent(event.id);
+  console.log('Body:', fullEvent.body);
+}
+```
 
 ### Examples
 
