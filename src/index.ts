@@ -1,6 +1,7 @@
 export * from './client/ApiClient.js';
 export * from './client/MqttClient.js';
 export * from './dto/AppConfig.js';
+export * from './dto/AttachmentMeta.js';
 export * from './dto/Columns.js';
 export * from './dto/Error.js';
 export * from './dto/Event.js';
