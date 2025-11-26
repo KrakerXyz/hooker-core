@@ -1,4 +1,5 @@
 import type { Id } from '@krakerxyz/utility';
+import type { AttachmentMetaDto } from './AttachmentMeta.js';
 
 /** Single captured inbound HTTP request tied to a hook. */
 export interface EventDto {
@@ -25,5 +26,7 @@ export interface EventDto {
     contentType: string | null,
     /** User bookmark flag */
     bookmarked: boolean,
+    /** Attachments associated with this event (e.g., email attachments, form uploads) */
+    attachments?: AttachmentMetaDto[],
 }
     
