@@ -8,4 +8,6 @@ export interface AttachmentMetaDto {
     length: number,
     type: AttachmentType,
     mimeType: string,
+    /** Source identifier from the original attachment (e.g., Content-ID from email attachments) */
+    sourceId?: string,
 }

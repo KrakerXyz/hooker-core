@@ -1,16 +1,12 @@
 import type { Id } from '@krakerxyz/utility';
 import type { AttachmentMetaDto } from './AttachmentMeta.js';
 
-export type ReceiverType = 'webhook' | 'email';
-
 /** Single captured inbound HTTP request tied to a hook. */
 export interface EventDto {
     /** Event id */
     id: Id,
     /** Parent hook id */
     hookId: Id,
-    /** How this event was received */
-    receiverType: ReceiverType,
     /** Path (no origin) */
     path: string,
     /** Raw querystring (no leading ?) */
