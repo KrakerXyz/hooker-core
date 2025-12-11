@@ -8,6 +8,7 @@ import { type MqttJwtConfigDto } from '../dto/MqttJwtConfig.js';
 import { type ForwardRuleDto } from '../dto/ForwardRule.js';
 import { type ForwardDto } from '../dto/Forward.js';
 import { type ForwardAttemptDto } from '../dto/ForwardAttempt.js';
+import { type ForwardEventResponseDto } from '../dto/ForwardEventResponse.js';
 import { type UserDto } from '../dto/User.js';
 import { type Id } from '@krakerxyz/utility';
 
@@ -254,6 +255,19 @@ export class ApiClient {
      */
     async getEvent(eventId: Id): Promise<EventDto> {
         return this.request<EventDto>(`/api/events/${eventId}`);
+    }
+
+    /**
+     * Forwards an event to a specific URL.
+     * @param eventId The ID of the event to forward.
+     * @param url The URL to forward the event to.
+     * @returns A promise that resolves to the forward response.
+     */
+    async forwardEvent(eventId: Id, url: string): Promise<ForwardEventResponseDto> {
+        return this.request<ForwardEventResponseDto>(`/api/events/${eventId}/forward`, {
+            method: 'POST',
+            body: JSON.stringify({ url })
+        });
     }
     // #endregion
 
