@@ -9,6 +9,7 @@ export * from './dto/EventListItem.js';
 export * from './dto/EventsList.js';
 export * from './dto/Forward.js';
 export * from './dto/ForwardAttempt.js';
+export * from './dto/ForwardEventResponse.js';
 export * from './dto/ForwardRule.js';
 export * from './dto/Hook.js';
 export * from './dto/HookUrl.js';
