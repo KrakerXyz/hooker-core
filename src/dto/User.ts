@@ -6,4 +6,6 @@ export interface UserDto {
     emailVerified: boolean,
     createdAt: string, // ISO timestamp
     updatedAt: string, // ISO timestamp
+    /** Effective max payload size (MB) for this user's hooks; -1 means unlimited. */
+    effectiveMaxPayloadMb: number,
 }

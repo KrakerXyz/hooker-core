@@ -8,73 +8,93 @@ import { type ForwardAttemptDto } from '../dto/ForwardAttempt.js';
 import { type ApiClient } from './ApiClient.js';
 import { type Id } from '@krakerxyz/utility';
 
+// Reconnect backoff: doubles each failed attempt, capped, with jitter.
+const RECONNECT_BASE_MS = 1_000;
+const RECONNECT_MAX_MS = 30_000;
+const RECONNECT_JITTER_MS = 1_000;
+
 export class MqttClient {
 
     private _subscriptions: Map<string, Set<(x: any) => void>> = new Map();
     private _client: Client | null = null;
     private _userId: string | null = null;
+    private _brokerUrl: string | null = null;
+    private _clientIdPrefix: string = '';
+    // Set when we tear the client down on purpose so a dying socket can't
+    // trigger an unwanted reconnect loop.
+    private _intentionallyClosed: boolean = false;
+    private _reconnecting: boolean = false;
+    private _reconnectAttempts: number = 0;
+    private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
-    public constructor(private readonly apiClient: ApiClient) { }
+    public constructor(private readonly apiClient: ApiClient) {
+        // A long main-thread freeze drops the socket. When the tab becomes
+        // responsive again, reconnect immediately instead of waiting out the
+        // backoff. Guarded for non-browser (Node) environments.
+        if (typeof document !== 'undefined') {
+            document.addEventListener('visibilitychange', () => this.onVisibilityChange());
+        }
+    }
 
     public async connect(): Promise<void> {
-
         const config = await this.apiClient.getConfig();
-        const brokerUrl = config.mqtt.brokerUrl;
-        const clientId = `${config.mqtt.clientIdPrefix}${Date.now()}`;
+        this._brokerUrl = config.mqtt.brokerUrl;
+        this._clientIdPrefix = config.mqtt.clientIdPrefix;
 
         const me = await this.apiClient.me();
         if (!me.user?.id) {
             throw new Error('Failed to get user ID for MQTT authentication');
         }
         this._userId = me.user.id;
+        this._intentionallyClosed = false;
+
+        await this.openConnection();
+    }
+
+    /**
+     * Fetches a fresh JWT, wires up the handlers and connects a new client.
+     * A fresh JWT is fetched on every call (including reconnects) because the
+     * MQTT password is a short-lived token - reusing the original one would
+     * make reconnection fail permanently once it expires.
+     */
+    private async openConnection(): Promise<void> {
+        if (!this._brokerUrl) {
+            throw new Error('MQTT broker URL not available. Ensure connect() was called.');
+        }
 
         const jwt = await this.apiClient.getMqttAuthUser();
-        const username = jwt.username;
-        const password = jwt.password;
-    
-        this._client = new Paho.Client(brokerUrl, clientId);
+        const clientId = `${this._clientIdPrefix}${Date.now()}`;
+        const client = new Paho.Client(this._brokerUrl, clientId);
+        this._client = client;
 
-        this._client.onMessageArrived = (message: Message) => {
-            const topic = message.destinationName;
-            const cbs = new Set<(x: any) => void>;
+        client.onMessageArrived = (message: Message) => this.handleMessage(message);
 
-            const topicParts = topic.split('/');
-
-            for (const [subscribedTopic, subscribers] of this._subscriptions.entries()) {
-                if (this.isTopicMatch(subscribedTopic, topicParts)) {
-                    for (const cb of subscribers) {
-                        cbs.add(cb);
-                    }
-                }
-            }
-
-            const payload = message.payloadString || '';
-            try {
-                const json = JSON.parse(payload);
-                cbs.forEach(cb => cb(json));
-            } catch {
-                throw new Error(`Failed to parse MQTT message payload as JSON: ${payload}`);
-            }
+        client.onConnectionLost = (res: { errorCode: number, errorMessage: string }) => {
+            // Ignore callbacks from a client we have already replaced.
+            if (this._client !== client) { return; }
+            if (this._intentionallyClosed) { return; }
+            console.warn(`MQTT connection lost (code ${res.errorCode}): ${res.errorMessage || 'N/A'}. Reconnecting...`);
+            this.scheduleReconnect();
         };
 
         await new Promise<void>((resolve, reject) => {
-            this._client!.connect({
-                userName: username,
-                password: password,
-                useSSL: brokerUrl.startsWith('wss'),
-                reconnect: true,
+            client.connect({
+                userName: jwt.username,
+                password: jwt.password,
+                useSSL: this._brokerUrl!.startsWith('wss'),
+                // Reconnection is managed here so we can refresh the JWT and use
+                // a clean client each attempt - Paho's built-in reconnect reuses
+                // the original (expiring) credentials.
+                reconnect: false,
                 timeout: 30,
                 keepAliveInterval: 60,
                 cleanSession: true,
                 onSuccess: () => {
-                    // subscribe to all topics that have subscriptions
-                    for (const topic of this._subscriptions.keys()) {
-                        this._client!.subscribe(topic, {
-                            onFailure: (error: any) => {
-                                throw new Error(`Failed to resubscribe to topic ${topic} on reconnect`, error);
-                            }
-                        });
+                    if (this._client !== client) {
+                        resolve();
+                        return;
                     }
+                    this.resubscribeAll(client);
                     resolve();
                 },
                 onFailure: (err: unknown) => {
@@ -84,9 +104,111 @@ export class MqttClient {
         });
     }
 
+    private resubscribeAll(client: Client): void {
+        for (const topic of this._subscriptions.keys()) {
+            client.subscribe(topic, {
+                onFailure: (error: unknown) => {
+                    console.error(`Failed to resubscribe to topic ${topic} on reconnect:`, error);
+                }
+            });
+        }
+    }
+
+    private scheduleReconnect(): void {
+        if (this._intentionallyClosed) { return; }
+        if (this._reconnectTimer) { return; }
+
+        const backoff = Math.min(RECONNECT_BASE_MS * 2 ** this._reconnectAttempts, RECONNECT_MAX_MS);
+        const delay = backoff + Math.floor(Math.random() * RECONNECT_JITTER_MS);
+        this._reconnectTimer = setTimeout(() => {
+            this._reconnectTimer = null;
+            void this.reconnect();
+        }, delay);
+    }
+
+    private async reconnect(): Promise<void> {
+        if (this._intentionallyClosed) { return; }
+        if (this._reconnecting) { return; }
+        if (this._client?.isConnected()) { return; }
+
+        this._reconnecting = true;
+        this._reconnectAttempts++;
+
+        // Orphan the previous client so its dead socket and stale pingers can't
+        // drive reconnect logic or throw "WebSocket is already CLOSED" errors.
+        if (this._client) {
+            this.orphanClient(this._client);
+        }
+
+        try {
+            await this.openConnection();
+            if (this._intentionallyClosed && this._client) {
+                this.orphanClient(this._client);
+                return;
+            }
+            this._reconnectAttempts = 0;
+        } catch (err) {
+            console.error(`MQTT reconnect attempt ${this._reconnectAttempts} failed:`, err);
+            this.scheduleReconnect();
+        } finally {
+            this._reconnecting = false;
+        }
+    }
+
+    private onVisibilityChange(): void {
+        if (document.visibilityState !== 'visible') { return; }
+        if (this._intentionallyClosed || this._reconnecting) { return; }
+        if (this._client?.isConnected()) { return; }
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer);
+            this._reconnectTimer = null;
+        }
+        this._reconnectAttempts = 0;
+        void this.reconnect();
+    }
+
+    /** Detaches callbacks and disconnects a client so it can no longer drive any logic. */
+    private orphanClient(client: Client): void {
+        client.onConnectionLost = () => { /* orphaned */ };
+        client.onMessageArrived = () => { /* orphaned */ };
+        try {
+            client.disconnect();
+        } catch {
+            // Expected when the client is already disconnected.
+        }
+    }
+
+    private handleMessage(message: Message): void {
+        const topic = message.destinationName;
+        const cbs = new Set<(x: any) => void>;
+
+        const topicParts = topic.split('/');
+
+        for (const [subscribedTopic, subscribers] of this._subscriptions.entries()) {
+            if (this.isTopicMatch(subscribedTopic, topicParts)) {
+                for (const cb of subscribers) {
+                    cbs.add(cb);
+                }
+            }
+        }
+
+        const payload = message.payloadString || '';
+        try {
+            const json = JSON.parse(payload);
+            cbs.forEach(cb => cb(json));
+        } catch {
+            throw new Error(`Failed to parse MQTT message payload as JSON: ${payload}`);
+        }
+    }
+
     public disconnect(): void {
-        if (this._client?.isConnected()) {
-            this._client.disconnect();
+        this._intentionallyClosed = true;
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer);
+            this._reconnectTimer = null;
+        }
+        if (this._client) {
+            this.orphanClient(this._client);
         }
         this._client = null;
     }
@@ -165,14 +287,14 @@ export class MqttClient {
         };
 
         if (existingCbs) {
-            
+
             existingCbs.add(cb);
 
             return disposable;
         }
 
         return new Promise((resolve, reject) => {
-              
+
             this._client!.subscribe(fullTopic, {
                 onSuccess: () => {
                     existingCbs = this._subscriptions.get(fullTopic) ?? new Set();
@@ -185,7 +307,7 @@ export class MqttClient {
                     reject(error);
                 }
             });
-  
+
         });
     }
 }

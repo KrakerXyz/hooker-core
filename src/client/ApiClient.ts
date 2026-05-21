@@ -1,7 +1,7 @@
 import fetch from 'cross-fetch';
 import { type EventsListDto, type EventListItemDto } from '../dto/EventsList.js';
 import { type EventDto } from '../dto/Event.js';
-import { type HookDto, type HookCreateBody, type HookVisibilityUpdateBody, type HookNameUpdateBody } from '../dto/Hook.js';
+import { type HookDto, type HookListItemDto, type HookCreateBody, type HookVisibilityUpdateBody, type HookNameUpdateBody, type HookPayloadLimitUpdateBody } from '../dto/Hook.js';
 import { type ColumnDto, type SaveColumnsBody } from '../dto/Columns.js';
 import { type AppConfigDto } from '../dto/AppConfig.js';
 import { type MqttJwtConfigDto } from '../dto/MqttJwtConfig.js';
@@ -172,11 +172,24 @@ export class ApiClient {
     }
 
     /**
-     * Retrieves a list of hooks owned by the authenticated user.
+     * Updates a hook's max payload size override.
+     * @param id The ID of the hook.
+     * @param body The payload limit update data.
+     * @returns A promise that resolves to the updated hook.
+     */
+    async updateHookMaxPayloadSize(id: Id, body: HookPayloadLimitUpdateBody): Promise<HookDto> {
+        return this.request<HookDto>(`/api/hooks/${id}/max-payload-size-mb`, {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+    }
+
+    /**
+     * Retrieves a list of hooks owned by the authenticated user, with usage summaries.
      * @returns A promise that resolves to a list of hooks.
      */
-    async getMyHooks(): Promise<HookDto[]> {
-        return this.request<HookDto[]>('/api/hooks');
+    async getMyHooks(): Promise<HookListItemDto[]> {
+        return this.request<HookListItemDto[]>('/api/hooks');
     }
 
     /**
