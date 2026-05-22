@@ -59,7 +59,7 @@ export class ApiClient {
         this.credentials = options?.credentials;
     }
 
-    private async request<T>(path: string, options: RequestInit = {}, responseType: 'json' | 'text' = 'json'): Promise<T> {
+    private async request<T>(path: string, options: RequestInit = {}, responseType: 'json' | 'text' | 'arrayBuffer' = 'json'): Promise<T> {
         const url = `${this.baseUrl}${path}`;
         const headers = new Headers(options.headers);
 
@@ -109,6 +109,10 @@ export class ApiClient {
 
         if (responseType === 'text') {
             return response.text() as Promise<T>;
+        }
+
+        if (responseType === 'arrayBuffer') {
+            return response.arrayBuffer() as Promise<T>;
         }
 
         return response.json() as Promise<T>;
@@ -259,6 +263,16 @@ export class ApiClient {
      */
     async getEventBody(eventId: Id): Promise<string> {
         return this.request<string>(`/api/events/${eventId}/body`, {}, 'text');
+    }
+
+    /**
+     * Retrieves the raw body of an event as binary data.
+     * Used for multipart/form-data bodies, where text decoding would corrupt binary file parts.
+     * @param eventId The ID of the event.
+     * @returns A promise that resolves to the raw body bytes.
+     */
+    async getEventBodyBinary(eventId: Id): Promise<ArrayBuffer> {
+        return this.request<ArrayBuffer>(`/api/events/${eventId}/body`, {}, 'arrayBuffer');
     }
 
     /**
