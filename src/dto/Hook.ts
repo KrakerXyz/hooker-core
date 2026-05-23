@@ -23,6 +23,26 @@ export interface HookDto {
     node: string,
     /** Full public URL to send webhooks to for this hook (derived from PUBLIC_URL). */
     url: string,
+    /** Raw per-hook max payload size override (MB); null inherits the user/anonymous limit. */
+    maxPayloadSizeMb?: number | null,
+    /** Resolved effective max payload size (MB) enforced for this hook; -1 means unlimited. */
+    effectiveMaxPayloadMb: number,
+}
+
+/** Hook with usage summary, returned by the hooks list endpoint. */
+export interface HookListItemDto extends HookDto {
+    /** Total number of events received by this hook. */
+    eventCount: number,
+    /** Timestamp (ms) of the most recent event, or null when none. */
+    lastEventTimestamp: number | null,
+    /** Total size (bytes) of stored event bodies for this hook. */
+    totalBodyBytes: number,
+}
+
+/** Body for updating a hook's max payload size override (owner only). */
+export interface HookPayloadLimitUpdateBody {
+    /** New max payload size (MB): positive value, -1 for unlimited, or null to inherit. */
+    maxPayloadSizeMb: number | null,
 }
 
 // Generate a random verification token (25 chars) for anonymous hook owners.
@@ -31,7 +51,7 @@ export interface HookDto {
 export function newVerify(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const length = 25;
-    let bytes: Uint8Array | undefined;
+    let bytes: Uint8Array<ArrayBuffer> | undefined;
 
     if (typeof globalThis.crypto !== 'undefined' && typeof globalThis.crypto.getRandomValues === 'function') {
         bytes = new Uint8Array(length);
