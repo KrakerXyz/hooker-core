@@ -1,6 +1,6 @@
 {
     "name": "@hooker-monster/core",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "scripts": {
         "build": "tsc --build --clean && tsc --build",
         "demo": "tsx ./demo.ts",
@@ -15,6 +15,7 @@
     },
     "devDependencies": {
         "@krakerxyz/eslint-config": "^3.0.0",
+        "@types/node": "^25.9.1",
         "eslint": "^10.4.0",
         "tsx": "^4.22.3",
         "typescript": "^6.0.3"

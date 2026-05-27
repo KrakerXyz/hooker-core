@@ -214,11 +214,12 @@ export class ApiClient {
      * @param options Pagination options.
      * @returns A promise that resolves to a list of events.
      */
-    async getEvents(hookId: Id, options?: { limit?: number, beforeTs?: number, beforeId?: string }): Promise<EventsListDto> {
+    async getEvents(hookId: Id, options?: { limit?: number, beforeTs?: number, beforeId?: string, search?: string }): Promise<EventsListDto> {
         const params = new URLSearchParams();
         if (options?.limit) params.set('limit', String(options.limit));
         if (options?.beforeTs) params.set('beforeTs', String(options.beforeTs));
         if (options?.beforeId) params.set('beforeId', String(options.beforeId));
+        if (options?.search) params.set('search', options.search);
         const queryString = params.toString();
         return this.request<EventsListDto>(`/api/hooks/${hookId}/events${queryString ? `?${queryString}` : ''}`);
     }

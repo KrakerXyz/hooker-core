@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { ApiClient } from './src/client/ApiClient.js';
 import { MqttClient } from './src/client/MqttClient.js';
 
