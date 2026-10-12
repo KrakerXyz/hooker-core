@@ -407,6 +407,19 @@ export class ApiClient {
     }
 
     /**
+     * Queues another delivery attempt, or advances an automatic retry scheduled for later.
+     * The hook owner can retry completed, failed, or pendingReattempt forwards.
+     * Existing delivery attempts are preserved; queued/running forwards return a conflict.
+     * @param forwardId The ID of the forward.
+     * @returns A promise that resolves to the queued forward.
+     */
+    public async retryForward(forwardId: Id): Promise<ForwardDto> {
+        return this.request<ForwardDto>(`/api/forwards/${forwardId}/retry`, {
+            method: 'POST',
+        });
+    }
+
+    /**
      * Retrieves all forward attempts for a specific forward.
      * @param forwardId The ID of the forward.
      * @returns A promise that resolves to a list of forward attempts.
